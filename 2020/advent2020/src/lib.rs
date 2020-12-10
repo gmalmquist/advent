@@ -7,6 +7,7 @@ pub mod day06;
 pub mod day07;
 pub mod day08;
 pub mod day09;
+pub mod day10;
 
 pub fn execute(day: &str) {
     println!("Executing code for day {}", day);
@@ -20,6 +21,7 @@ pub fn execute(day: &str) {
         "07" => day07::main(),
         "08" => day08::main(),
         "09" => day09::main(),
+        "10" => day10::main(),
         _ => eprintln!("Unknown day: {}", day),
     }
 }
