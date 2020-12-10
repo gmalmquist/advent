@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet};
-use std::cmp;
-use std::fmt;
+use std::collections::{HashMap};
+
+
 use std::fs;
 use std::io::{self, BufRead};
 
@@ -46,10 +46,6 @@ impl RuleTree {
       let mut vec: Vec<String> = self.rules.keys().map(|s| s.to_string()).collect();
       vec.sort();
       vec
-  }
-
-  fn can_contain_directly(&self, a: &str, b: &str) -> bool {
-      self.rules.get(a).map_or(false, |a| a.children.contains_key(b))
   }
 
   fn bag_closure(&self, bag: &str) -> HashMap<String, u64> {
