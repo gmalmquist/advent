@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self, BufRead};
 
-fn main() {
+pub fn main() {
   if let Ok(file) = fs::File::open("input3.txt") {
       let lines = io::BufReader::new(file).lines();
       let forest = Forest::new(lines);

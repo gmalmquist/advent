@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self, BufRead};
 
-fn main() {
+pub fn main() {
   let mut valid = 0;
   if let Ok(file) = fs::File::open("input2.txt") {
       let lines = io::BufReader::new(file).lines();

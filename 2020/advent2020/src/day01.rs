@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self, BufRead};
 
-fn main() {
+pub fn main() {
   if let Ok(file) = fs::File::open("input1.txt") {
       let mut numbers = vec![];
       let lines = io::BufReader::new(file).lines();

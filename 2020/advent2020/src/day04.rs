@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{self, BufRead};
 use std::collections::{HashMap, HashSet};
 
-fn main() {
+pub fn main() {
   if let Ok(file) = fs::File::open("input4.txt") {
       let lines = io::BufReader::new(file).lines();
       let mut valid_count = 0;
