@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+
 use std::fs;
 use std::io::{self, BufRead};
 
@@ -13,7 +13,7 @@ pub fn main() {
 
       let mut sum = RunningSum::new();
 
-      for (index, line) in lines.enumerate() {
+      for (_index, line) in lines.enumerate() {
           let num: u64 = line.parse().expect("couldn't parse input number");
           sum.push(num);
 
@@ -143,13 +143,13 @@ impl RunningSum {
         self.store[(self.start + i) % self.store.len()]
     }
 
-    fn values(&self) -> Vec<u64> {
-        let mut vec = vec![];
-        for i in 0..self.length {
-            vec.push(self.get(i));
-        }
-        vec
-    }
+    //fn values(&self) -> Vec<u64> {
+    //    let mut vec = vec![];
+    //    for i in 0..self.length {
+    //        vec.push(self.get(i));
+    //    }
+    //    vec
+    //}
 }
 
 struct RingBuffer<T> {
@@ -167,9 +167,9 @@ impl<T> RingBuffer<T> {
       }
   }
 
-  fn remove_first(&mut self) {
-      self.cursor += 1;
-  }
+  //fn remove_first(&mut self) {
+  //    self.cursor += 1;
+  //}
 
   fn push(&mut self, item: T) {
       let index = self.cursor % self.capacity;
