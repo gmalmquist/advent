@@ -1,7 +1,7 @@
 
 use std::fs;
 use std::io::{self, BufRead};
-use std::ops::{Index, IndexMut};
+use std::ops::{Index};
 use std::fmt;
 use std::collections::HashMap;
 
@@ -12,9 +12,14 @@ pub fn main() {
       let lines = lines.filter(|l| l.is_ok())
           .map(|l| l.unwrap());
 
-      let grid = Grid::new(lines.collect());
+      let mut grid = Grid::new(lines.collect());
 
-      print!("Grid:\n{}\n", grid);
+      let mut iterations = 0;
+      while grid.advance() != AdvanceResult::NoChange {
+          iterations += 1;
+      }
+      println!("Stabilized at {} iterations.", iterations);
+      println!("Occupied seats: {}", grid.occupied_seats());
   }
 }
 
@@ -50,7 +55,7 @@ impl Grid {
     self.cells[row * self.cols + col] = val;
   }
 
-  fn advance(&mut self) {
+  fn advance(&mut self) -> AdvanceResult {
       // 1. If a seat is empty (L) and there are no occupied seats adjacent to it, the seat
       //    becomes occupied.
       // 2. If a seat is occupied (#) and four or more seats adjacent to it are also occupied,
@@ -59,7 +64,7 @@ impl Grid {
       let mut change_map: HashMap<(usize,usize),char> = HashMap::new();
       for row in 0..self.rows {
           for col in 0..self.cols {
-              if self[(row, col)] != 'L' {
+              if self[(row, col)] == '.' {
                   continue;
               }
               let adj_acc = self.adjacent(row, col)
@@ -68,21 +73,39 @@ impl Grid {
 
               let pos = (row, col);
 
-              if adj_acc == 0 {
-                  change_map.insert(pos, '#');
-              } else if adj_acc >= 4 {
-                  change_map.insert(pos, '#');
+              let change = match self[(row, col)] {
+                  'L' if adj_acc == 0 => Some('#'),
+                  '#' if adj_acc >= 5 => Some('L'),
+                  _ => None,
+              };
+
+              if let Some(change) = change {
+                  change_map.insert(pos, change);
               }
           }
       }
       for (key, val) in change_map.iter() {
           self.set(*key, *val);
       }
+      match change_map.len() {
+          0 => AdvanceResult::NoChange,
+          i => AdvanceResult::Change(i),
+      }
   }
 
   fn adjacent<'a>(&'a self, row: usize, col: usize) -> Adj8<'a> {
       Adj8::new(&self, row, col)
   }
+
+  fn occupied_seats(&self) -> usize {
+      self.cells.iter().filter(|c| **c == '#').count()
+  }
+}
+
+#[derive(std::cmp::PartialEq)]
+enum AdvanceResult {
+    NoChange,
+    Change(usize),
 }
 
 struct Adj8<'a> {
@@ -104,15 +127,37 @@ impl<'a> Adj8<'a> {
               (1, 1),
           ];
           let positions = offsets.iter()
-              .map(|(r,c)| (r + row as isize, c + col as isize))
-              .filter(|(r,c)| r > &0 && c > &0 && (*r as usize) < grid.rows && (*c as usize) < grid.cols)
-              .map(|(r,c)| (r as usize, c as usize))
+              .map(|(r,c)| Adj8::first_seat(grid, (row, col), (*r, *c)))
+              .filter(|p| p.is_some())
+              .map(|p| p.unwrap())
               .collect();
         Self {
             grid,
             positions,
             i: 0,
         }
+    }
+
+    fn first_seat(grid: &'a Grid, pos: (usize, usize), dir: (isize, isize)) -> Option<(usize,usize)> {
+        let (pos_r, pos_c) = pos;
+        let (dir_r, dir_c) = dir;
+
+        let mut r = pos_r as isize + dir_r;
+        let mut c = pos_c as isize + dir_c;
+
+        while r >= 0 && c >= 0 && r < grid.rows as isize && c < grid.cols as isize {
+            let p = (r as usize, c as usize);
+            //if pos == (7, 0) {
+            //    println!("{:?} + ({:?}) = {:?}", pos, dir, p);
+            //}
+
+            if grid[p] != '.' {
+                return Some(p);
+            }
+            r += dir_r;
+            c += dir_c;
+        }
+        None
     }
 }
 
